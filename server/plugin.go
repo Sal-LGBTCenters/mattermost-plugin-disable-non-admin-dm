@@ -6,7 +6,6 @@ import (
 
 	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/mattermost/mattermost-server/v6/plugin"
-	"github.com/pkg/errors"
 )
 
 // Plugin implements the interface expected by the Mattermost server to communicate between the server and plugin processes.
@@ -37,7 +36,7 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 	channel, appError := Mattermost.GetChannel(post.ChannelId)
 
 	if appError != nil {
-		errors.Wrap(appError, "Failed to get channel for post: "+post.Id+" and channelId: "+post.ChannelId)
+		Mattermost.LogError("Failed to get channel for post: " + post.Id + " and channelId: " + post.ChannelId + ". Error: " + appError.Error())
 		return nil, ""
 	}
 

@@ -8,10 +8,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-const (
-	HeaderMattermostUserID = "Mattermost-User-Id"
-)
-
 var Mattermost plugin.API
 
 // configuration captures the plugin's external configuration as exposed in the Mattermost server
