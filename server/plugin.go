@@ -3,7 +3,6 @@ package main
 import (
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/mattermost/mattermost-server/v6/plugin"
@@ -64,14 +63,7 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 		return false
 	}
 
-	// if isUserTeamAdmin(post.UserId) || isUserTeamAdmin(channel.GetOtherUserIdForDM(post.UserId)) { // Users can only DM Admins
-	//	if isUserTeamAdmin(post.UserId) || isUserTeamAdmin(channel.CreatorId) { // DMs can only be created by admins. Older regular users who created DMs will not have access to their created DMs. DMs cannot be deleted once initiated
-
-	currentPostTime := time.Now().UTC()
-	sessionExpires := time.Unix(channel.LastPostAt/1000, 0).Add(24 * time.Hour)
-
-	if isUserTeamAdmin(post.UserId) ||
-		(isUserTeamAdmin(channel.GetOtherUserIdForDM(post.UserId)) && currentPostTime.Before(sessionExpires)) {
+	if isUserTeamAdmin(post.UserId) || isUserTeamAdmin(channel.GetOtherUserIdForDM(post.UserId)) {
 		return nil, ""
 	}
 
