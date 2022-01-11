@@ -1,10 +1,10 @@
 {
-    "id": "com.mattermost.plugin-starter-template",
-    "name": "Plugin Starter Template",
+    "id": "com.mattermost.plugin-disable-non-admin-dm",
+    "name": "Disable Non-Admin DM",
     "description": "This plugin serves as a starting point for writing a Mattermost plugin.",
-    "homepage_url": "https://github.com/mattermost/mattermost-plugin-starter-template",
-    "support_url": "https://github.com/mattermost/mattermost-plugin-starter-template/issues",
-    "release_notes_url": "https://github.com/mattermost/mattermost-plugin-starter-template/releases/tag/v0.1.0",
+    "homepage_url": "https://github.com/nadahmed/mattermost-plugin-disable-non-admin-dm",
+    "support_url": "https://github.com/nadahmed/mattermost-plugin-disable-non-admin-dm/issues",
+    "release_notes_url": "https://github.com/mattermost/mattermost-plugin-disable-non-admin-dm/releases/tag/v0.1.0",
     "icon_path": "assets/starter-template-icon.svg",
     "version": "0.1.0",
     "min_server_version": "5.12.0",
@@ -17,12 +17,31 @@
             "windows-amd64": "server/dist/plugin-windows-amd64.exe"
         }
     },
-    "webapp": {
-        "bundle_path": "webapp/dist/main.js"
-    },
     "settings_schema": {
         "header": "",
         "footer": "",
-        "settings": []
+        "settings": [
+            {
+                "key": "RejectDMs",
+                "display_name": "Reject DMs:",
+                "type": "bool",
+                "default": true,
+                "help_text": "If set the plugin will reject direct messages."
+            },
+            {
+                "key": "RejectGroupChats",
+                "display_name": "Reject Group Chats:",
+                "type": "bool",
+                "default": true,
+                "help_text": "If set the plugin will reject messages sent to group chats."
+            },
+            {
+                "key": "RejectionMessage",
+                "display_name": "Rejection Message:",
+                "type": "text",
+                "help_text": "Enter the message to display to users who try to send a direct message.",
+                "default": "Direct messages have been disabled by an administrator."
+            }
+        ]
     }
 }

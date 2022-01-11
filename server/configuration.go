@@ -2,9 +2,17 @@ package main
 
 import (
 	"reflect"
+	"strings"
 
+	"github.com/mattermost/mattermost-server/v6/plugin"
 	"github.com/pkg/errors"
 )
+
+const (
+	HeaderMattermostUserID = "Mattermost-User-Id"
+)
+
+var Mattermost plugin.API
 
 // configuration captures the plugin's external configuration as exposed in the Mattermost server
 // configuration, as well as values computed from the configuration. Any public fields will be
@@ -17,7 +25,11 @@ import (
 //
 // If you add non-reference types to your configuration struct, be sure to rewrite Clone as a deep
 // copy appropriate for your types.
+
 type configuration struct {
+	RejectDMs        bool   `json:"RejectDMs"`
+	RejectGroupChats bool   `json:"RejectGroupChats"`
+	RejectionMessage string `json:"RejectionMessage"`
 }
 
 // Clone shallow copies the configuration. Your implementation may require a deep copy if
@@ -70,14 +82,41 @@ func (p *Plugin) setConfiguration(configuration *configuration) {
 
 // OnConfigurationChange is invoked when configuration changes may have been made.
 func (p *Plugin) OnConfigurationChange() error {
-	var configuration = new(configuration)
+	if Mattermost != nil {
+		var configuration = new(configuration)
+		// Load the public configuration fields from the Mattermost server configuration.
+		if err := Mattermost.LoadPluginConfiguration(configuration); err != nil {
+			return errors.Wrap(err, "Error in LoadPluginConfiguration")
+		}
 
-	// Load the public configuration fields from the Mattermost server configuration.
-	if err := p.API.LoadPluginConfiguration(configuration); err != nil {
-		return errors.Wrap(err, "failed to load plugin configuration")
+		if err := configuration.ProcessConfiguration(); err != nil {
+			return errors.Wrap(err, "Error in ProcessConfiguration")
+		}
+
+		if err := configuration.IsValid(); err != nil {
+			return errors.Wrap(err, "Error in Validating Configuration")
+		}
+
+		p.setConfiguration(configuration)
 	}
+	return nil
+}
 
-	p.setConfiguration(configuration)
+func (c *configuration) ProcessConfiguration() error {
+	// any post-processing on configurations goes here
+
+	c.RejectionMessage = strings.TrimSpace(c.RejectionMessage)
+
+	return nil
+}
+
+func (c *configuration) IsValid() error {
+	// Add config validations here.
+	// Check for required fields, formats, etc.
+
+	if (c.RejectDMs || c.RejectGroupChats) && c.RejectionMessage == "" {
+		return errors.New("rejection message cannot be empty")
+	}
 
 	return nil
 }
